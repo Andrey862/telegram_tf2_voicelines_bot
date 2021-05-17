@@ -59,10 +59,10 @@ def help_command(update: Update, _: CallbackContext) -> None:
 def cache_data(update: Update, _: CallbackContext) -> None:
     if update.effective_user.name in admins:
         data = data_handler.raw_data
-        index = {}
+        audio_ids = {}
         for tf2class, l in data.items():
-            index [tf2class] = []
-            for e in l[:5]:
+            audio_ids[tf2class] = []
+            for e in l:
                 retry = True
                 while retry:
                     try:
@@ -72,12 +72,13 @@ def cache_data(update: Update, _: CallbackContext) -> None:
                             performer = tf2class,
                             title = e['text'],
                             )
-                        index[tf2class].append({'file_id': x.audio.file_id, 'text': e['text']})
-                    except Exception as e:
-                        print('caching data error'+repr(e))
+                        audio_ids[tf2class].append({'file_id': x.audio.file_id, 'text': e['text']})
+                    except Exception as error:
+                        print('caching data error' + repr(error))
                         retry = True
                         sleep(3)
-        data_handler.generate_index(index)
+        print('data is cached!')
+        data_handler.save_ids(audio_ids)
     else:
         update.message.reply_text("You are not an admin, silly")
 
@@ -87,7 +88,7 @@ def inlinequery(update: Update, _: CallbackContext) -> None:
     """Handle the inline query."""
     query = update.inline_query.query
    # a = Bot.send_audio(self = None, chat_id = 223150767, audio =  open('music.wav', 'rb'))
-
+   # print(update.effective_user.name, query)
     if query == "":
         return
 
@@ -100,7 +101,6 @@ def inlinequery(update: Update, _: CallbackContext) -> None:
         )
         for e in query_results
     ]
-
     update.inline_query.answer(results)
 
 
