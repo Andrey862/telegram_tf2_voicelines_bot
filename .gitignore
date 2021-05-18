@@ -3,5 +3,6 @@ venv/
 __pycache__/
 .vscode/
 *.pickle
+!audio_ids.pickle
 *.mp3
 *.wav

@@ -10,23 +10,19 @@ bot.
 import logging
 import os
 from io import BytesIO
-from uuid import uuid4
 from time import sleep
+from uuid import uuid4
 
 import telegram
 from dotenv import load_dotenv
-from telegram import (Bot, InlineQueryResultArticle, InlineQueryResultAudio,
-                      InlineQueryResultCachedAudio, InputTextMessageContent,
-                      ParseMode, Update)
+from telegram import InlineQueryResultCachedAudio, Update
 from telegram.ext import (CallbackContext, CommandHandler, InlineQueryHandler,
                           Updater)
-from telegram.utils.helpers import escape_markdown
 
 import data_handler
 
 load_dotenv()
 
-# Enable logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
 )
@@ -34,21 +30,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-# Define a few command handlers. These usually take the two arguments update and
-# context. Error handlers also receive the raised TelegramError object in error.
-
+# data_handler.generate_index(data_handler.audio_ids)
 admins = os.environ.get('ADMINS').split(';')
+
 
 def start(update: Update, _: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
-    x = update.message.reply_audio(
-        open('music.mp3', 'rb'),
-        performer = 'pp',
-        title = 'ze title',
-        )
-    print(x, x.audio.file_id)
-    print(update.effective_user.name in admins)
-    
+    update.message.reply_text('Hello!')
+    #print(x, x.audio.file_id)
+    #print(update.effective_user.name in admins)
 
 
 def help_command(update: Update, _: CallbackContext) -> None:
@@ -69,10 +59,11 @@ def cache_data(update: Update, _: CallbackContext) -> None:
                         retry = False
                         x = update.message.reply_audio(
                             BytesIO(e['data']),
-                            performer = tf2class,
-                            title = e['text'],
-                            )
-                        audio_ids[tf2class].append({'file_id': x.audio.file_id, 'text': e['text']})
+                            performer=tf2class,
+                            title=e['text'],
+                        )
+                        audio_ids[tf2class].append(
+                            {'file_id': x.audio.file_id, 'text': e['text']})
                     except Exception as error:
                         print('caching data error' + repr(error))
                         retry = True
@@ -83,12 +74,11 @@ def cache_data(update: Update, _: CallbackContext) -> None:
         update.message.reply_text("You are not an admin, silly")
 
 
-
 def inlinequery(update: Update, _: CallbackContext) -> None:
     """Handle the inline query."""
     query = update.inline_query.query
    # a = Bot.send_audio(self = None, chat_id = 223150767, audio =  open('music.wav', 'rb'))
-   # print(update.effective_user.name, query)
+    print(update.effective_user.name, query)
     if query == "":
         return
 
@@ -96,8 +86,8 @@ def inlinequery(update: Update, _: CallbackContext) -> None:
 
     results = [
         InlineQueryResultCachedAudio(
-            id = str(uuid4()),
-            audio_file_id= e
+            id=str(uuid4()),
+            audio_file_id=e
         )
         for e in query_results
     ]
