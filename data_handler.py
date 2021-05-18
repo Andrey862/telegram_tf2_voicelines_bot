@@ -13,8 +13,9 @@ raw_data_location = 'data/tf_audio_raw.pickle'
 index_location = 'data/index.pickle'
 audio_ids_location = 'data/audio_ids.pickle'
 
-with open(raw_data_location, 'rb') as f:
-    raw_data = pickle.load(f)
+if os.path.exists(raw_data_location):
+    with open(raw_data_location, 'rb') as f:
+        raw_data = pickle.load(f)
 
 if os.path.exists(index_location):
     with open(index_location, 'rb') as f:
@@ -77,3 +78,5 @@ def generate_index(audio_ids):
 
 if (index is None and audio_ids is not None):
     generate_index(audio_ids)
+
+
