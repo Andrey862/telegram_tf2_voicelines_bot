@@ -76,23 +76,25 @@ def cache_data(update: Update, _: CallbackContext) -> None:
 
 def inlinequery(update: Update, _: CallbackContext) -> None:
     """Handle the inline query."""
-    query = update.inline_query.query
-   # a = Bot.send_audio(self = None, chat_id = 223150767, audio =  open('music.wav', 'rb'))
-    print(update.effective_user.name, query)
-    if query == "":
-        return
+    try:
+        query = update.inline_query.query
+    # a = Bot.send_audio(self = None, chat_id = 223150767, audio =  open('music.wav', 'rb'))
+        print(update.effective_user.name, query)
+        if query == "":
+            return
 
-    query_results = data_handler.find(query)
+        query_results = data_handler.find(query)
 
-    results = [
-        InlineQueryResultCachedAudio(
-            id=str(uuid4()),
-            audio_file_id=e
-        )
-        for e in query_results
-    ]
-    update.inline_query.answer(results)
-
+        results = [
+            InlineQueryResultCachedAudio(
+                id=str(uuid4()),
+                audio_file_id=e
+            )
+            for e in query_results
+        ]
+        update.inline_query.answer(results)
+    except Exception as error:
+        print(repr(error))
 
 def main() -> None:
     # Create the Updater and pass it your bot's token.
