@@ -37,23 +37,14 @@ formatter = logging.Formatter(
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
-#------- read globals------
+# ------- read globals------
+
 
 with open('data/help_text.md', 'r') as f:
     help_text = f.read()
 
 with open('data/help_text_admin.md', 'r') as f:
     help_text_admin = f.read()
-
-# def admin_only_decorator(handler):
-#     """ decorator preventing non-admin user from using command
-#     """
-#     def new_handler(update: Update, cbc: CallbackContext) -> None:
-#         if update.effective_user.name in admins:
-#             return handler(update, cbc)
-#         else:
-#             update.message.reply_text("You are not an admin, silly")
-#     return new_handler
 
 
 def catch_error_decorator(fun):
@@ -63,9 +54,11 @@ def catch_error_decorator(fun):
         except Exception as e:
             logger.error(traceback.format_exc())
             if update.effective_user.name in admins:
-                update.message.reply_text("Error occured, admin traceback:\n ```\n" + traceback.format_exc()+"\n```", parse_mode='Markdown')
+                update.message.reply_text(
+                    "Error occured, admin traceback:\n ```\n" + traceback.format_exc()+"\n```", parse_mode='Markdown')
             else:
-                update.message.reply_text("oops! something went wrong " + e, parse_mode='Markdown')
+                update.message.reply_text(
+                    "oops! something went wrong " + e, parse_mode='Markdown')
     return f
 
 
@@ -124,8 +117,10 @@ def admin_get_audio_ids(update: Update, _: CallbackContext) -> None:
 
 @catch_error_decorator
 def admin_upload_audio_ids_command(update: Update, _: CallbackContext) -> int:
-    update.message.reply_text('Please upload json file with audio ids or type /cancel to cancel')
+    update.message.reply_text(
+        'Please upload json file with audio ids or type /cancel to cancel')
     return 0
+
 
 @catch_error_decorator
 def admin_upload_audio_ids_loader(update: Update, _: CallbackContext) -> int:
@@ -145,7 +140,6 @@ def admin_upload_audio_ids_loader(update: Update, _: CallbackContext) -> int:
             "this doesn't seem to be a text file please upload again")
         return 0
     return ConversationHandler.END
-
 
 
 def cancel(update: Update, _: CallbackContext) -> int:
@@ -174,7 +168,7 @@ def inlinequery(update: Update, _: CallbackContext) -> None:
     try:
         query = update.inline_query.query
     # a = Bot.send_audio(self = None, chat_id = 223150767, audio =  open('music.wav', 'rb'))
-        logger.info(f'update.effective_user.name ', 'query')
+        logger.info(f'Inline query {update.effective_user.name} '+ query)
         if query == "":
             return
 
@@ -194,7 +188,7 @@ def inlinequery(update: Update, _: CallbackContext) -> None:
 
 def main() -> None:
     # Create filter to check if a user is admin
-    admin_only_filter = Filters.user(username = admins)
+    admin_only_filter = Filters.user(username=admins)
 
     updater = Updater(os.environ.get("TOKEN"))
 
@@ -208,7 +202,8 @@ def main() -> None:
         "admin_get_audio_ids", admin_get_audio_ids, admin_only_filter))
 
     dispatcher.add_handler(InlineQueryHandler(inlinequery))
-    dispatcher.add_handler(MessageHandler(~Filters.command & admin_only_filter, test))
+    dispatcher.add_handler(MessageHandler(
+        ~Filters.command & admin_only_filter, test))
     dispatcher.add_handler(ConversationHandler(
         entry_points=[CommandHandler(
             'admin_upload_audio_ids', admin_upload_audio_ids_command, admin_only_filter)],
