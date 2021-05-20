@@ -148,26 +148,10 @@ def cancel(update: Update, _: CallbackContext) -> int:
     )
     return ConversationHandler.END
 
-
-def test(update: Update, _: CallbackContext):
-    print('helllo!')
-    # try:
-    #     text = json.loads(
-    #         update.message.document.get_file().download_as_bytearray().decode())
-    #     print('file: ', text)
-    # except json.JSONDecodeError as error:
-    #     update.message.reply_text(
-    #         "this doesn't seem to be a correct json file please upload again")
-    # except UnicodeDecodeError as error:
-    #     update.message.reply_text(
-    #         "this doesn't seem to be a text file please upload again")
-
-
 def inlinequery(update: Update, _: CallbackContext) -> None:
     """Handle the inline query."""
     try:
         query = update.inline_query.query
-    # a = Bot.send_audio(self = None, chat_id = 223150767, audio =  open('music.wav', 'rb'))
         logger.info(f'Inline query {update.effective_user.name} '+ query)
         if query == "":
             return
@@ -183,7 +167,7 @@ def inlinequery(update: Update, _: CallbackContext) -> None:
         ]
         update.inline_query.answer(results)
     except Exception as error:
-        print(repr(error))
+        logger.error(traceback.format_exc())
 
 
 def main() -> None:
@@ -202,8 +186,6 @@ def main() -> None:
         "admin_get_audio_ids", admin_get_audio_ids, admin_only_filter))
 
     dispatcher.add_handler(InlineQueryHandler(inlinequery))
-    dispatcher.add_handler(MessageHandler(
-        ~Filters.command & admin_only_filter, test))
     dispatcher.add_handler(ConversationHandler(
         entry_points=[CommandHandler(
             'admin_upload_audio_ids', admin_upload_audio_ids_command, admin_only_filter)],

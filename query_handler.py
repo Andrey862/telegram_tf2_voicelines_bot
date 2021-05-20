@@ -43,16 +43,14 @@ def similarity(query: str, item: dict) -> float:
     res /= item['l']
     return res
 
-def find(query):
+def find(query: str) -> list:
     if (':' not in query): query=':' +query
     query = query.split(':')
     query_tf2class, query_line = (query[0], ':'.join(query[1:]))
     res = []
     for tf2class in index:
         if (query_tf2class.lower() in tf2class.lower()):
-            for e in index[tf2class]:
-                res.append(e)
-
+            res += index[tf2class]
     shuffle(res)
     res = sorted(res, key=lambda e: -similarity(query_line, e['text']))[:20]
     return [e['file_id'] for e in res]
