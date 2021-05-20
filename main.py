@@ -81,7 +81,7 @@ def help_command(update: Update, _: CallbackContext) -> None:
 
 @catch_error_decorator
 def admin_cache_data(update: Update, _: CallbackContext) -> None:
-    data = query_handler.raw_data
+    data = query_handler.get_raw_data()
     audio_ids = {}
     for tf2class, l in data.items():
         audio_ids[tf2class] = []

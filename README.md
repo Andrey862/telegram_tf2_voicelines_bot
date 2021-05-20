@@ -1,6 +1,6 @@
 # This is telegram [inline bot](https://core.telegram.org/bots/inline)
 It's in very raw state currently
-Currently (hopefully) hosted on heroku: @A2606bot
+Currently (hopefully) hosted on heroku: @tf222bot
 
 Roadmap:
 - Help text

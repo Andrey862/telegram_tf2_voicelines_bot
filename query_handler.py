@@ -6,17 +6,12 @@ import json
 from collections import Counter
 from random import random, sample, shuffle
 
-raw_data = None
 index = None
 audio_ids = None
 
 raw_data_location = 'data/tf_audio_raw.pickle'
 index_location = 'data/index.pickle'
 audio_ids_location = 'data/audio_ids.pickle'
-
-if os.path.exists(raw_data_location):
-    with open(raw_data_location, 'rb') as f:
-        raw_data = pickle.load(f)
 
 if os.path.exists(index_location):
     with open(index_location, 'rb') as f:
@@ -25,6 +20,11 @@ if os.path.exists(index_location):
 if os.path.exists(audio_ids_location):
     with open(audio_ids_location, 'rb') as f:
         audio_ids = pickle.load(f)
+
+def get_raw_data():
+    if os.path.exists(raw_data_location):
+        with open(raw_data_location, 'rb') as f:
+            raw_data = pickle.load(f)
 
 def preprocess(text: str) -> dict:
     text = text.lower()
