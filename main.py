@@ -7,22 +7,23 @@ Basic inline bot example. Applies different text transformations.
 Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
+import json
 import logging
 import os
+import traceback
 from io import BytesIO
 from time import sleep
 from uuid import uuid4
 
 import telegram
-import json
-import traceback
 from dotenv import load_dotenv
 from telegram import InlineQueryResultCachedAudio, Update
-from telegram.ext import (CallbackContext, CommandHandler, InlineQueryHandler,
-                          Updater, Filters, MessageHandler, ConversationHandler)
 from telegram.error import NetworkError
+from telegram.ext import (CallbackContext, CommandHandler, ConversationHandler,
+                          Filters, InlineQueryHandler, MessageHandler, Updater)
 
 import query_handler
+
 admins = os.environ.get('ADMINS').split(';')
 
 # ------ loading systeme variables---------
@@ -40,10 +41,10 @@ logger.addHandler(stream_handler)
 # ------- read globals------
 
 
-with open('data/help_text.md', 'r') as f:
+with open('static/help_text.md', 'r') as f:
     help_text = f.read()
 
-with open('data/help_text_admin.md', 'r') as f:
+with open('static/help_text_admin.md', 'r') as f:
     help_text_admin = f.read()
 
 
@@ -104,6 +105,14 @@ def admin_cache_data(update: Update, _: CallbackContext) -> None:
     update.message.reply_text('Data cached successfully')
     query_handler.save_ids(audio_ids)
 
+    file = json.dumps(query_handler.audio_ids).encode()
+    try:
+        update.message.reply_document(file, filename='audio_ids.json')
+        update.message.reply_text("use this if you want to move bot")
+    except NetworkError:
+        update.message.reply_text(
+            f'Seems like this file is too large: {len(file)}. Maximum file size is 1.5MB')
+
 
 @catch_error_decorator
 def admin_get_audio_ids(update: Update, _: CallbackContext) -> None:
@@ -148,11 +157,12 @@ def cancel(update: Update, _: CallbackContext) -> int:
     )
     return ConversationHandler.END
 
+
 def inlinequery(update: Update, _: CallbackContext) -> None:
     """Handle the inline query."""
     try:
         query = update.inline_query.query
-        logger.info(f'Inline query {update.effective_user.name} '+ query)
+        logger.info(f'Inline query {update.effective_user.name} ' + query)
         if query == "":
             return
 

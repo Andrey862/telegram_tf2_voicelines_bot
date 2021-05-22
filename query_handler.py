@@ -24,19 +24,19 @@ if os.path.exists(audio_ids_location):
 def get_raw_data():
     if os.path.exists(raw_data_location):
         with open(raw_data_location, 'rb') as f:
-            raw_data = pickle.load(f)
+            return pickle.load(f)
 
 def preprocess(text: str) -> dict:
     text = text.lower()
-    text = '^' + text  + '$'
+    #text = '^' + text  + '$'
     res = {}
     res['l'] = max(len(text)-2, 1) + 10
     res['tri'] = dict(Counter([text[i:i+3] for i in range(len(text)-3)]))
     res['two'] = dict(Counter([text[i:i+2] for i in range(len(text)-2)]))
     return res
 
-def similarity(query: str, item: dict) -> float:
-    query = preprocess(query)
+def similarity(query: dict, item: dict) -> float:
+    #query = preprocess(query)
     res = 0
     res += 2*sum(min(query['tri'][e], item['tri'][e]) for e in query['tri'].keys() & item['tri'].keys())
     res += sum(min(query['two'][e], item['two'][e]) for e in query['two'].keys() & item['two'].keys())
@@ -52,7 +52,8 @@ def find(query: str) -> list:
         if (query_tf2class.lower() in tf2class.lower()):
             res += index[tf2class]
     shuffle(res)
-    res = sorted(res, key=lambda e: -similarity(query_line, e['text']))[:20]
+    query_line_preprocessed = preprocess(query_line)
+    res = sorted(res, key=lambda e: -similarity(query_line_preprocessed, e['text']))[:20]
     return [e['file_id'] for e in res]
 
 
