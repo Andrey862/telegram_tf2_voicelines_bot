@@ -1,18 +1,19 @@
 import io
 import json
+import logging
+import multiprocessing as mp
+import os
 from base64 import b64decode, b64encode
+from functools import partial
 from multiprocessing.pool import ThreadPool
 from time import sleep
 from urllib.parse import urljoin
-from data_handler import get_scrap_conf, save_scrap_conf
 
-import os
-import logging
 import requests
-import multiprocessing as mp
 from bs4 import BeautifulSoup
-from functools import partial
 from pydub import AudioSegment
+
+from data_handler import get_scrap_conf, save_scrap_conf
 
 audio_ext = [
     '.3gp',
@@ -70,6 +71,7 @@ stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 
+
 class Config():
     conf = None
     conf_default_location = 'static/default_scrapping.json'
@@ -77,7 +79,8 @@ class Config():
     @classmethod
     def get(cls):
         if (cls.conf is None):
-            logger.debug(f'scrap config not found in memory, taking from local storage')
+            logger.debug(
+                f'scrap config not found in memory, taking from local storage')
             if (not get_scrap_conf()):
                 logger.debug(f'not found locally, creating from default')
                 with open(cls.conf_default_location, 'r') as r:
@@ -89,7 +92,7 @@ class Config():
     @classmethod
     def save(cls, data):
         cls.conf = data
-        save_scrap_conf(json.dumps(cls.conf))       
+        save_scrap_conf(json.dumps(cls.conf))
 
 
 def to_mp3(audio):
@@ -105,27 +108,27 @@ def get_content(url):
             logger.warning(f'acces to {url} failed, retrying')
 
 
-
 def get_encoded_audio(res, base_url):
     def parce(e, base_url):
-        logger.debug('start ',e['data'])
+        logger.debug('start ', e['data'])
         attempts = 0
         while(True):
             try:
-                res = {'text':e['text'], 'data':get_content(urljoin(base_url, e['data']))}
-                logger.debug('finish',e['data'])
+                res = {'text': e['text'], 'data': get_content(
+                    urljoin(base_url, e['data']))}
+                logger.debug('finish', e['data'])
                 return res
 
             except Exception as error:
-                attempts+=1
-                logging.warning('fail ',e['data'], repr(error))
+                attempts += 1
+                logging.warning('fail ', e['data'], repr(error))
                 sleep(0.1)
-                if (attempts>15):
+                if (attempts > 15):
                     logging.error(f'failed to fetch {e["data"]} {repr(error)}')
                     break
-    
+
     with ThreadPool(max(1, min(len(res), 1000))) as pool:
-        return pool.map(partial(parce, base_url = base_url),  res)
+        return pool.map(partial(parce, base_url=base_url),  res)
 
 
 def parce_voice_lines(url):
@@ -138,12 +141,13 @@ def parce_voice_lines(url):
             return False
         if (any(url.endswith(ext) for ext in audio_ext)):
             if (url in found):
-                #skip repetition 
+                # skip repetition
                 return False
             found.add(url)
             return True
-    res = [{'text': e.text, 'data': e.get('href')} for e in soup.findAll('a') if audio_url(e.get('href'))]
-    #return res
+    res = [{'text': e.text, 'data': e.get('href')} for e in soup.findAll(
+        'a') if audio_url(e.get('href'))]
+    # return res
     return get_encoded_audio(res, url)
 
 
@@ -159,15 +163,16 @@ def scrap_process(q, urls):
         q.put((tf2class, data))
     q.put(None)
 
+
 def scrap():
     urls = Config.get()
     q = mp.Queue()
-    p = mp.Process(target=scrap_process, args=(q,urls))
+    p = mp.Process(target=scrap_process, args=(q, urls))
     p.daemon = True
     p.start()
     while(True):
         res = q.get()
-        if res is None: 
+        if res is None:
             p.join()
             return
         yield res

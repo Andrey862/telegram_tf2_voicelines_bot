@@ -1,12 +1,13 @@
-from file_system_data_handler import save_index
-from data_handler import get_audio_ids, get_index, save_audio_ids
-from functools import cache
-from string import ascii_lowercase
-import pickle
-import os
 import json
+import os
+import pickle
 from collections import Counter
+from functools import cache
 from random import random, sample, shuffle
+from string import ascii_lowercase
+
+from data_handler import get_audio_ids, get_index, save_audio_ids
+from file_system_data_handler import save_index
 
 index = get_index()
 audio_ids = get_audio_ids()
@@ -22,15 +23,20 @@ def preprocess(text: str) -> dict:
     res['two'] = dict(Counter([text[i:i+2] for i in range(len(text)-2)]))
     return res
 
+
 def similarity(query: dict, item: dict) -> float:
     res = 0
-    res += 2*sum(min(query['tri'][e], item['tri'][e]) for e in query['tri'].keys() & item['tri'].keys())
-    res += sum(min(query['two'][e], item['two'][e]) for e in query['two'].keys() & item['two'].keys())
+    res += 2*sum(min(query['tri'][e], item['tri'][e])
+                 for e in query['tri'].keys() & item['tri'].keys())
+    res += sum(min(query['two'][e], item['two'][e])
+               for e in query['two'].keys() & item['two'].keys())
     res /= item['l']
     return res
 
+
 def find(query: str) -> list:
-    if (':' not in query): query=':' +query
+    if (':' not in query):
+        query = ':' + query
     query = query.split(':')
     query_tf2class, query_line = (query[0], ':'.join(query[1:]))
     res = []
@@ -39,7 +45,8 @@ def find(query: str) -> list:
             res += index[tf2class]
     shuffle(res)
     query_line_preprocessed = preprocess(query_line)
-    res = sorted(res, key=lambda e: -similarity(query_line_preprocessed, e['text']))[:20]
+    res = sorted(res, key=lambda e: -
+                 similarity(query_line_preprocessed, e['text']))[:20]
     return [e['file_id'] for e in res]
 
 
@@ -56,7 +63,8 @@ def generate_index(audio_ids):
     for tf2class in audio_ids:
         index[tf2class] = []
         for e in audio_ids[tf2class]:
-            index[tf2class].append({'text': preprocess(e['text']), 'file_id': e['file_id']})
+            index[tf2class].append(
+                {'text': preprocess(e['text']), 'file_id': e['file_id']})
     save_index(index)
 
 
