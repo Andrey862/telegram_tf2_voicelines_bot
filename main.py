@@ -12,7 +12,7 @@ import signal
 def ignore(*args, **kwargs):
     pass
 
-signal.signal(signal.SIGTERM, ignore)
+signal.signal(signal.SIGINT, ignore)
 
 from dotenv import load_dotenv
 
