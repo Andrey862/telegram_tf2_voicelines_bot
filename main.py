@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 import json
 import logging
 import os
@@ -40,8 +41,6 @@ formatter = logging.Formatter(
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
-# ------- read globals------
-
 
 with open('static/help_text.md', 'r') as f:
     help_text = f.read()
@@ -76,7 +75,11 @@ def start(update: Update, context: CallbackContext) -> None:
 def help_command(update: Update, _: CallbackContext) -> None:
     """ give different help command responce to admins and non-admins"""
     if update.effective_user.name in admins:
-        update.message.reply_text(help_text_admin, parse_mode='Markdown')
+        text = ("\n" + "-"*10 + "Admin commands" + "-"*10 + "\n" +
+                help_text_admin +
+                "\n" + "-"*10 + "Help text" + "-"*10 + "\n" +
+                help_text)
+        update.message.reply_text(text, parse_mode='Markdown')
     else:
         update.message.reply_text(help_text, parse_mode='Markdown')
 
@@ -85,8 +88,8 @@ def help_command(update: Update, _: CallbackContext) -> None:
 def admin_scrap_and_cache_data(update: Update, _: CallbackContext) -> None:
     audio_ids = {}
     update.message.reply_text(
-        "Initiating scrapping and caching\n"+
-        "This can take several hours\n"+
+        "Initiating scrapping and caching\n" +
+        "This can take several hours\n" +
         "(!)Turn off notifications to this bot, there will be a lot of spam")
     for tf2class, l in scrapper.scrap():
         audio_ids[tf2class] = []
@@ -164,6 +167,7 @@ def admin_get_scrapper_config(update: Update, _: CallbackContext) -> None:
         update.message.reply_text(
             f'Seems like this file is too large: {len(file)}. Maximum file size is 1.5MB')
 
+
 @catch_error_decorator
 def admin_get_scrapper_config(update: Update, _: CallbackContext) -> None:
     file = json.dumps(scrapper.Config.get()).encode()
@@ -200,13 +204,11 @@ def admin_upload_scrapper_config_loader(update: Update, _: CallbackContext) -> i
     return ConversationHandler.END
 
 
-
 def cancel(update: Update, _: CallbackContext) -> int:
     update.message.reply_text(
         'Canceled'
     )
     return ConversationHandler.END
-
 
 
 def inlinequery(update: Update, _: CallbackContext) -> None:
@@ -231,6 +233,16 @@ def inlinequery(update: Update, _: CallbackContext) -> None:
         logger.error(traceback.format_exc())
 
 
+@catch_error_decorator
+def admin_status(update: Update, _: CallbackContext) -> None:
+    if (query_handler.audio_ids):
+        update.message.reply_text(
+            "bot should be working now, check logs if it doesn't")
+    else:
+        update.message.reply_text(
+            "bot is off. You need to cache data to get it working")
+
+
 def main() -> None:
 
     # Create filter to check if a user is admin
@@ -241,6 +253,8 @@ def main() -> None:
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help_command))
+    dispatcher.add_handler(CommandHandler(
+        "admin_status", admin_status, admin_only_filter))
     dispatcher.add_handler(CommandHandler(
         "admin_scrap_and_cache_data", admin_scrap_and_cache_data, admin_only_filter))
 
