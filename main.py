@@ -11,10 +11,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-import socket
-echoSocket = socket.socket()
-echoSocket.bind(("127.0.0.1", 80))
-
 import json
 import logging
 import os
