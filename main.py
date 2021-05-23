@@ -24,11 +24,10 @@ from telegram.ext import (CallbackContext, CommandHandler, ConversationHandler,
 
 import query_handler
 
-admins = os.environ.get('ADMINS').split(';')
-
 # ------ loading systeme variables---------
 load_dotenv()
-# query_handler.generate_index(query_handler.audio_ids)
+
+admins = os.environ.get('ADMINS').split(';')
 
 # ------- Loggging-----------
 logger = logging.getLogger(__name__)
@@ -181,6 +180,7 @@ def inlinequery(update: Update, _: CallbackContext) -> None:
 
 
 def main() -> None:
+
     # Create filter to check if a user is admin
     admin_only_filter = Filters.user(username=admins)
 
