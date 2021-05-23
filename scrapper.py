@@ -4,6 +4,7 @@ from base64 import b64decode, b64encode
 from multiprocessing.pool import ThreadPool
 from time import sleep
 from urllib.parse import urljoin
+from data_handler import get_scrap_conf, save_scrap_conf
 
 import os
 import logging
@@ -71,29 +72,24 @@ logger.addHandler(stream_handler)
 
 class Config():
     conf = None
-    conf_location = 'data/scrapping.json'
     conf_default_location = 'static/default_scrapping.json'
 
     @classmethod
     def get(cls):
         if (cls.conf is None):
-            logger.debug(f'scrap config not found locally, taking from {cls.conf_location}')
-            
-            if (not os.path.exists(cls.conf_location)):
-                logger.debug(f'{cls.conf_location} not found, creating from default')
+            logger.debug(f'scrap config not found in memory, taking from local storage')
+            if (not get_scrap_conf()):
+                logger.debug(f'not found locally, creating from default')
                 with open(cls.conf_default_location, 'r') as r:
-                    with open(cls.conf_location, 'w') as w:
-                        w.write(r.read())
+                    save_scrap_conf(r.read())
 
-            with open(cls.conf_location, 'r') as f:
-                cls.conf = json.load(f)
+            cls.conf = json.loads(get_scrap_conf())
         return cls.conf
 
     @classmethod
     def save(cls, data):
         cls.conf = data
-        with open(cls.conf_location, 'w') as f:
-            json.dump(f)
+        save_scrap_conf(json.dumps(cls.conf))       
 
 
 def to_mp3(audio):

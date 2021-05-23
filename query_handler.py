@@ -1,3 +1,5 @@
+from file_system_data_handler import save_index
+from data_handler import get_audio_ids, get_index, save_audio_ids
 from functools import cache
 from string import ascii_lowercase
 import pickle
@@ -6,27 +8,12 @@ import json
 from collections import Counter
 from random import random, sample, shuffle
 
-index = None
-audio_ids = None
+index = get_index()
+audio_ids = get_audio_ids()
 
-raw_data_location = 'data/tf_audio_raw.pickle'
-index_location = 'data/index.pickle'
-audio_ids_location = 'data/audio_ids.pickle'
-
-if os.path.exists(index_location):
-    with open(index_location, 'rb') as f:
-        index = pickle.load(f)
-
-if os.path.exists(audio_ids_location):
-    with open(audio_ids_location, 'rb') as f:
-        audio_ids = pickle.load(f)
-
-def get_raw_data():
-    if os.path.exists(raw_data_location):
-        with open(raw_data_location, 'rb') as f:
-            return pickle.load(f)
 
 def preprocess(text: str) -> dict:
+    # N-gram based search
     text = text.lower()
     #text = '^' + text  + '$'
     res = {}
@@ -36,7 +23,6 @@ def preprocess(text: str) -> dict:
     return res
 
 def similarity(query: dict, item: dict) -> float:
-    #query = preprocess(query)
     res = 0
     res += 2*sum(min(query['tri'][e], item['tri'][e]) for e in query['tri'].keys() & item['tri'].keys())
     res += sum(min(query['two'][e], item['two'][e]) for e in query['two'].keys() & item['two'].keys())
@@ -60,8 +46,7 @@ def find(query: str) -> list:
 def save_ids(new_data):
     global audio_ids
     audio_ids = new_data
-    with open(audio_ids_location, 'wb') as f:
-        pickle.dump(audio_ids, f)
+    save_audio_ids(audio_ids)
     generate_index(audio_ids)
 
 
@@ -72,8 +57,7 @@ def generate_index(audio_ids):
         index[tf2class] = []
         for e in audio_ids[tf2class]:
             index[tf2class].append({'text': preprocess(e['text']), 'file_id': e['file_id']})
-    with open(index_location, 'wb') as f:
-        pickle.dump(index, f)
+    save_index(index)
 
 
 if (index is None and audio_ids is not None):
