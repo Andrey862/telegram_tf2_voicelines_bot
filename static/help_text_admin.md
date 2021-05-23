@@ -1,4 +1,4 @@
-/admin\_cache\_data
+/admin\_scrap\_and\_cache\_data
 
 
 /admin\_get\_audio\_ids

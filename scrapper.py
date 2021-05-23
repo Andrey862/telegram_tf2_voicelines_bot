@@ -3,11 +3,10 @@ import json
 import logging
 import multiprocessing as mp
 import os
-from base64 import b64decode, b64encode
 from functools import partial
 from multiprocessing.pool import ThreadPool
 from time import sleep
-from typing import Generator
+from typing import Generator, List
 from urllib.parse import urljoin
 
 import requests
@@ -85,15 +84,15 @@ class Config():
             if (not get_scrap_conf()):
                 logger.debug(f'not found locally, creating from default')
                 with open(cls.conf_default_location, 'r') as r:
-                    save_scrap_conf(r.read())
+                    save_scrap_conf(json.loads(r.read()))
 
-            cls.conf = json.loads(get_scrap_conf())
+            cls.conf = get_scrap_conf()
         return cls.conf
 
     @classmethod
     def save(cls, data: dict) -> None:
         cls.conf = data
-        save_scrap_conf(json.dumps(cls.conf))
+        save_scrap_conf(cls.conf)
 
 
 def to_mp3(audio: bytes) -> bytes:
@@ -111,7 +110,7 @@ def get_content(url: str) -> bytes:
 
 def get_encoded_audio(res: dict, base_url: bytes) -> dict:
     def parce(e, base_url):
-        logger.debug('start ', e['data'])
+        logger.debug('start ' + e['data'])
         attempts = 0
         while(True):
             try:
@@ -132,7 +131,7 @@ def get_encoded_audio(res: dict, base_url: bytes) -> dict:
         return pool.map(partial(parce, base_url=base_url),  res)
 
 
-def parce_voice_lines(url:str) -> dict:
+def parce_voice_lines(url: str) -> dict:
     soup = BeautifulSoup(get_content(url),  "html.parser")
     found = set()
 

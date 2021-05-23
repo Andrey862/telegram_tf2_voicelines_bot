@@ -26,6 +26,7 @@ from telegram.ext import (CallbackContext, CommandHandler, ConversationHandler,
                           Filters, InlineQueryHandler, MessageHandler, Updater)
 
 import query_handler
+import scrapper
 
 # ------ loading systeme variables---------
 
@@ -65,11 +66,10 @@ def catch_error_decorator(fun):
 
 
 @catch_error_decorator
-def start(update: Update, _: CallbackContext) -> None:
+def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
     update.message.reply_text('Hello!')
-    #print(x, x.audio.file_id)
-    #print(update.effective_user.name in admins)
+    help_command(update, context)
 
 
 @catch_error_decorator
@@ -82,10 +82,13 @@ def help_command(update: Update, _: CallbackContext) -> None:
 
 
 @catch_error_decorator
-def admin_cache_data(update: Update, _: CallbackContext) -> None:
-    data = query_handler.get_raw_data()
+def admin_scrap_and_cache_data(update: Update, _: CallbackContext) -> None:
     audio_ids = {}
-    for tf2class, l in data.items():
+    update.message.reply_text(
+        "Initiating scrapping and caching\n"+
+        "This can take several hours\n"+
+        "(!)Turn off notifications to this bot, there will be a lot of spam")
+    for tf2class, l in scrapper.scrap():
         audio_ids[tf2class] = []
         for e in l:
             retry = True
@@ -151,11 +154,59 @@ def admin_upload_audio_ids_loader(update: Update, _: CallbackContext) -> int:
     return ConversationHandler.END
 
 
+# This is bad copypasting from get/upload audio_ids to get/upload scrapper_confing bu it will work for now
+@catch_error_decorator
+def admin_get_scrapper_config(update: Update, _: CallbackContext) -> None:
+    file = json.dumps(query_handler.audio_ids).encode()
+    try:
+        update.message.reply_document(file, filename='audio_ids.json')
+    except NetworkError:
+        update.message.reply_text(
+            f'Seems like this file is too large: {len(file)}. Maximum file size is 1.5MB')
+
+@catch_error_decorator
+def admin_get_scrapper_config(update: Update, _: CallbackContext) -> None:
+    file = json.dumps(scrapper.Config.get()).encode()
+    try:
+        update.message.reply_document(file, filename='scrapper_config.json')
+    except NetworkError:
+        update.message.reply_text(
+            f'Seems like this file is too large: {len(file)}. Maximum file size is 1.5MB')
+
+
+@catch_error_decorator
+def admin_upload_scrapper_config_command(update: Update, _: CallbackContext) -> int:
+    update.message.reply_text(
+        'Please upload scrapper config or type /cancel to cancel')
+    return 0
+
+
+@catch_error_decorator
+def admin_upload_scrapper_config_loader(update: Update, _: CallbackContext) -> int:
+    try:
+        file = json.loads(
+            update.message.document.get_file().download_as_bytearray().decode())
+        #TODO: Validation
+        scrapper.Config.save(file)
+        update.message.reply_text("audio ids updated successfully")
+    except AttributeError as error:
+        update.message.reply_text(
+            "this doesn't seem to be a correct json file please upload again")
+        return 0
+    except UnicodeDecodeError as error:
+        update.message.reply_text(
+            "this doesn't seem to be a text file please upload again")
+        return 0
+    return ConversationHandler.END
+
+
+
 def cancel(update: Update, _: CallbackContext) -> int:
     update.message.reply_text(
         'Canceled'
     )
     return ConversationHandler.END
+
 
 
 def inlinequery(update: Update, _: CallbackContext) -> None:
@@ -191,7 +242,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help_command))
     dispatcher.add_handler(CommandHandler(
-        "admin_cache_data", admin_cache_data, admin_only_filter))
+        "admin_scrap_and_cache_data", admin_scrap_and_cache_data, admin_only_filter))
 
     dispatcher.add_handler(CommandHandler(
         "admin_get_audio_ids", admin_get_audio_ids, admin_only_filter))
@@ -202,6 +253,18 @@ def main() -> None:
             'admin_upload_audio_ids', admin_upload_audio_ids_command, admin_only_filter)],
         states={
             0: [MessageHandler(Filters.document & admin_only_filter, admin_upload_audio_ids_loader)]
+        },
+        fallbacks=[CommandHandler('cancel', cancel)],
+    ))
+
+    dispatcher.add_handler(CommandHandler(
+        "admin_get_scrapper_config", admin_get_scrapper_config, admin_only_filter))
+
+    dispatcher.add_handler(ConversationHandler(
+        entry_points=[CommandHandler(
+            'admin_upload_scrapper_config', admin_upload_scrapper_config_command, admin_only_filter)],
+        states={
+            0: [MessageHandler(Filters.document & admin_only_filter, admin_upload_scrapper_config_loader)]
         },
         fallbacks=[CommandHandler('cancel', cancel)],
     ))
