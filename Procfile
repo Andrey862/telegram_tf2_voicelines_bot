@@ -1,1 +1,2 @@
-web: python main.py
+release: sudo apt install ffmpeg
+worker: python main.py
