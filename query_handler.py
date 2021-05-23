@@ -6,8 +6,7 @@ from functools import cache
 from random import random, sample, shuffle
 from string import ascii_lowercase
 
-from data_handler import get_audio_ids, get_index, save_audio_ids
-from file_system_data_handler import save_index
+from data_handler import get_audio_ids, get_index, save_audio_ids, save_index
 
 index = get_index()
 audio_ids = get_audio_ids()
@@ -17,10 +16,11 @@ def preprocess(text: str) -> dict:
     # N-gram based search
     text = text.lower()
     #text = '^' + text  + '$'
+    text = "'" + text + "'"  # Why not?
     res = {}
     res['l'] = max(len(text)-2, 1) + 10
-    res['tri'] = dict(Counter([text[i:i+3] for i in range(len(text)-3)]))
-    res['two'] = dict(Counter([text[i:i+2] for i in range(len(text)-2)]))
+    res['tri'] = dict(Counter([text[i:i+3] for i in range(len(text)-2)]))
+    res['two'] = dict(Counter([text[i:i+2] for i in range(len(text)-1)]))
     return res
 
 

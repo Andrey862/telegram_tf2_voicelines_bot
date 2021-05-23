@@ -3,6 +3,3 @@ venv/
 __pycache__/
 .vscode/
 data/
-!tf_audio_raw.pickle
-*.mp3
-*.wav

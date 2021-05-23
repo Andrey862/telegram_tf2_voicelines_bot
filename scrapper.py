@@ -7,6 +7,7 @@ from base64 import b64decode, b64encode
 from functools import partial
 from multiprocessing.pool import ThreadPool
 from time import sleep
+from typing import Generator
 from urllib.parse import urljoin
 
 import requests
@@ -77,7 +78,7 @@ class Config():
     conf_default_location = 'static/default_scrapping.json'
 
     @classmethod
-    def get(cls):
+    def get(cls) -> dict:
         if (cls.conf is None):
             logger.debug(
                 f'scrap config not found in memory, taking from local storage')
@@ -90,16 +91,16 @@ class Config():
         return cls.conf
 
     @classmethod
-    def save(cls, data):
+    def save(cls, data: dict) -> None:
         cls.conf = data
         save_scrap_conf(json.dumps(cls.conf))
 
 
-def to_mp3(audio):
+def to_mp3(audio: bytes) -> bytes:
     return AudioSegment.from_file(io.BytesIO(audio)).export(format='mp3').read()
 
 
-def get_content(url):
+def get_content(url: str) -> bytes:
     while True:
         try:
             return requests.get(url).content
@@ -108,7 +109,7 @@ def get_content(url):
             logger.warning(f'acces to {url} failed, retrying')
 
 
-def get_encoded_audio(res, base_url):
+def get_encoded_audio(res: dict, base_url: bytes) -> dict:
     def parce(e, base_url):
         logger.debug('start ', e['data'])
         attempts = 0
@@ -131,7 +132,7 @@ def get_encoded_audio(res, base_url):
         return pool.map(partial(parce, base_url=base_url),  res)
 
 
-def parce_voice_lines(url):
+def parce_voice_lines(url:str) -> dict:
     soup = BeautifulSoup(get_content(url),  "html.parser")
     found = set()
 
@@ -151,7 +152,7 @@ def parce_voice_lines(url):
     return get_encoded_audio(res, url)
 
 
-def scrap_process(q, urls):
+def scrap_process(q: mp.Queue, urls: dict) -> None:
     for tf2class, urls in urls.items():
         data = []
         # There's room for optimization by downloading and converting to mp3 in parallel
@@ -164,7 +165,7 @@ def scrap_process(q, urls):
     q.put(None)
 
 
-def scrap():
+def scrap() -> Generator:
     urls = Config.get()
     q = mp.Queue()
     p = mp.Process(target=scrap_process, args=(q, urls))

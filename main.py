@@ -7,6 +7,10 @@ Basic inline bot example. Applies different text transformations.
 Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
+from dotenv import load_dotenv
+
+load_dotenv()
+
 import json
 import logging
 import os
@@ -16,7 +20,6 @@ from time import sleep
 from uuid import uuid4
 
 import telegram
-from dotenv import load_dotenv
 from telegram import InlineQueryResultCachedAudio, Update
 from telegram.error import NetworkError
 from telegram.ext import (CallbackContext, CommandHandler, ConversationHandler,
@@ -25,7 +28,6 @@ from telegram.ext import (CallbackContext, CommandHandler, ConversationHandler,
 import query_handler
 
 # ------ loading systeme variables---------
-load_dotenv()
 
 admins = os.environ.get('ADMINS').split(';')
 
@@ -136,8 +138,7 @@ def admin_upload_audio_ids_loader(update: Update, _: CallbackContext) -> int:
         file = json.loads(
             update.message.document.get_file().download_as_bytearray().decode())
         #TODO: Validation
-        query_handler.generate_index(file)
-        query_handler.audio_ids = file
+        query_handler.save_ids(file)
         update.message.reply_text("audio ids updated successfully")
     except AttributeError as error:
         update.message.reply_text(
