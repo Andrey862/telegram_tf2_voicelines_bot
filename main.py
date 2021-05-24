@@ -216,8 +216,6 @@ def inlinequery(update: Update, _: CallbackContext) -> None:
     try:
         query = update.inline_query.query
         logger.info(f'Inline query {update.effective_user.name} ' + query)
-        if query == "":
-            return
 
         query_results = query_handler.find(query)
 
