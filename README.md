@@ -24,6 +24,8 @@ Lines search is implemented with modified [N-grams based search](https://en.wiki
 
 Elements with the same score are will be in random order
 
+There's room for optimization, for example by using [vptree](https://en.wikipedia.org/wiki/Vantage-point_tree) to speed up search
+
 # File Structure
 
 `main.py`
