@@ -75,6 +75,8 @@ ADMINS = \<list of admins' usernames seperated by ";">
 
 ![heroku ENV example](README/ENV_example.jpg)
 
+(!!) After that you will need to call `/admin_scrap_and_cache_data` to cache all data inside telegram. **It might take several hours**
+
 # Admin panel
 
 You can run `/help` to bot and you will get
