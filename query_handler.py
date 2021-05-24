@@ -1,10 +1,12 @@
 import json
 import os
 import pickle
+from math import sqrt
 from collections import Counter
 from functools import cache
 from random import random, sample, shuffle
 from string import ascii_lowercase
+from unidecode import unidecode
 
 from data_handler import get_audio_ids, get_index, save_audio_ids, save_index
 
@@ -14,7 +16,7 @@ audio_ids = get_audio_ids()
 
 def preprocess(text: str) -> dict:
     # N-gram based search
-    text = text.lower()
+    text = unidecode(text).lower()
     #text = '^' + text  + '$'
     text = "'" + text + "'"  # Why not?
     res = {}
@@ -30,7 +32,7 @@ def similarity(query: dict, item: dict) -> float:
                  for e in query['tri'].keys() & item['tri'].keys())
     res += sum(min(query['two'][e], item['two'][e])
                for e in query['two'].keys() & item['two'].keys())
-    res /= item['l']
+    res /= sqrt(item['l'])
     return res
 
 
