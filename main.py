@@ -8,12 +8,6 @@ Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
 
-import signal
-def ignore(*args, **kwargs):
-    pass
-
-signal.signal(signal.SIGINT, ignore)
-
 from dotenv import load_dotenv
 
 load_dotenv()
