@@ -77,11 +77,11 @@ ADMINS = \<list of admins' usernames seperated by ";">
 
 # Admin panel
 
-You can run /help to bot and you will get
+You can run `/help` to bot and you will get
 
 Most of the command accesable only by admin user
 
-/admin_scrap_and_cache_data
+`/admin_scrap_and_cache_data`
 
 This is important operation to get bot working
 
@@ -89,20 +89,20 @@ This command will scrap a site and send all found audios, converte them to mp3 a
 
 This is very heavy operation and will take several hours
 
-/admin_get_scrapper_config
+`/admin_get_scrapper_config`
 
-/admin_upload_scrapper_config
+`/admin_upload_scrapper_config`
 
 Config settings for scrapping {artist: [urls]}
 
-/admin_get_audio_ids
+`/admin_get_audio_ids`
 
-/admin_upload_audio_ids
+`/admin_upload_audio_ids`
 
 This operations needed if you want to move bot to another hosting and don't want to cache all data again
 
 Just get audio ids from old location to another
 
-/admin_status
+`/admin_status`
 
 Whether the bot is working
