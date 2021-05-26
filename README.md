@@ -4,25 +4,25 @@ for searching [voicelines of Team Fortress 2 characters](https://wiki.teamfortre
 
 Just open Telegram and type "\<bot alias\> \<request\>" in any chat
 
-e.g. "@tf222bot morons"
+e.g. "\<bot alias\> morons"
 
 You also can specify class:
-"@tf222bot med: laughter" will search only Medic's laughter
+"\<bot alias\> med: laughter" will search only Medic's laughter
 
 [N-grams based search](https://en.wikipedia.org/wiki/N-gram) make this bot robust againt typos and allows to search with only parts of words
 
-Currently (hopefully) hosted on heroku: @tf222bot
+Currently (hopefully) hosted on heroku: `@tf222bot`
 ![examples](README/examples1.jpg)
 
 # Search algorithm
 
-Each query splitted into tf2class ('' if not specified) and line
+Each query splitted into *tf2 class* (optional) and *line*
 
-tf2class searched by full inclusion and works as a filer
+*tf2 class* searched by full text inclusion and works more like a filer
 
-Lines search is implemented with modified [N-grams based search](https://en.wikipedia.org/wiki/N-gram) 
+*Lines* search is implemented with slightly modified [N-grams based search](https://en.wikipedia.org/wiki/N-gram) 
 
-Elements with the same score are will be in random order
+Elements with the same score will be in random order
 
 There's room for optimization, for example by using [vptree](https://en.wikipedia.org/wiki/Vantage-point_tree) to speed up search
 
