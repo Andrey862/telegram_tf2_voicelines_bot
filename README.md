@@ -1,29 +1,23 @@
 # Description
 This is telegram messanger [inline bot](https://core.telegram.org/bots/inline)
-for searching [voicelines of Team Fortress 2 characters](https://wiki.teamfortress.com/wiki/Responses)
+for searching [voicelines of Team Fortress 2 characters](https://wiki.teamfortress.com/wiki/Responses) written in python
 
-Just open Telegram and type "\<bot alias\> \<request\>" in any chat
+Can be called from any telegram by typing "\<bot alias\> \<request\>" in any chat
 
 e.g. "\<bot alias\> morons"
 
 You also can specify class:
 "\<bot alias\> med: laughter" will search only Medic's laughter
 
-[N-grams based search](https://en.wikipedia.org/wiki/N-gram) make this bot robust againt typos and allows to search with only parts of words
-
-Currently (hopefully) hosted on heroku: `@tf222bot`
+Currently (hopefully) hosted on heroku: [`@tf222bot`](http://t.me/tf222bot)
 ![examples](README/examples1.jpg)
 
 # Search algorithm
 
-Each query splitted into *tf2 class* (optional) and *line*
-
-*tf2 class* searched by full text inclusion and works more like a filer
-
-*Lines* search is implemented with slightly modified [N-grams based search](https://en.wikipedia.org/wiki/N-gram) 
-
-Elements with the same score will be in random order
-
+Each query splitted into **tf2 class** (optional) and a **line**  
+**tf2 class** searched by full text inclusion and works more like a filer  
+**Lines** search is implemented with slightly modified [N-grams based search](https://en.wikipedia.org/wiki/N-gram) which make this bot robust againt typos and allows to search with only parts of words  
+Elements with the same score will be in random order  
 There's room for optimization, for example by using [vptree](https://en.wikipedia.org/wiki/Vantage-point_tree) to speed up search
 
 # File Structure
@@ -54,12 +48,12 @@ Stores files into postgresql
 
 # Deployment
 
-It is possible to deploy this bot on a ***`free`*** Heroku instance
+It is possible to deploy this bot on a Heroku instance
 
 for it you will need to
 
 1. add postgresql
-2. add ffpeg (to convert wav to mp3)
+2. add ffpeg (to convert wav to mp3) (it's free)
 
 Assuming you already [connected to some heroku app](https://devcenter.heroku.com/articles/heroku-connect-api) you only need to run these commands:
 ```bash
