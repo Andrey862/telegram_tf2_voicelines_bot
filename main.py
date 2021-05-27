@@ -157,7 +157,7 @@ def admin_upload_audio_ids_loader(update: Update, _: CallbackContext) -> int:
     return ConversationHandler.END
 
 
-# This is bad copypasting from get/upload audio_ids to get/upload scrapper_confing bu it will work for now
+# This is bad copypasting from get/upload audio_ids to get/upload scrapper_confing but it will work for now
 @catch_error_decorator
 def admin_get_scrapper_config(update: Update, _: CallbackContext) -> None:
     file = json.dumps(query_handler.audio_ids).encode()
