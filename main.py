@@ -8,10 +8,6 @@ Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
 import json
 import logging
 import os
@@ -21,6 +17,7 @@ from time import sleep
 from uuid import uuid4
 
 import telegram
+from dotenv import load_dotenv
 from telegram import InlineQueryResultCachedAudio, Update
 from telegram.error import NetworkError
 from telegram.ext import (CallbackContext, CommandHandler, ConversationHandler,
@@ -29,7 +26,10 @@ from telegram.ext import (CallbackContext, CommandHandler, ConversationHandler,
 import query_handler
 import scrapper
 
-# ------ loading systeme variables---------
+load_dotenv()
+
+
+# ------ loading system variables---------
 
 admins = os.environ.get('ADMINS').split(';')
 
