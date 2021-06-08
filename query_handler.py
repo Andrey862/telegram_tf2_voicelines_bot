@@ -26,7 +26,8 @@ def preprocess(text: str, jitter = 0) -> dict:
     res['l'] = sqrt(max(len(text)-2, 1) + 10)
     #res['text'] = text
     
-    #add random number to similarity metric
+    # add random number to similarity metric 
+    # makes elements with the same score will be in random order 
     res['jitter'] = jitter
     return res
 

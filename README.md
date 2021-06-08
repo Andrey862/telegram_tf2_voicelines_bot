@@ -1,6 +1,7 @@
 # Description
-This is telegram messanger [inline bot](https://core.telegram.org/bots/inline)
+This is telegram messenger [inline bot](https://core.telegram.org/bots/inline)
 for searching [voicelines of Team Fortress 2 characters](https://wiki.teamfortress.com/wiki/Responses) written in python
+based on [n-grams]((https://en.wikipedia.org/wiki/N-gram)) and [vp-tree](https://en.wikipedia.org/wiki/Vantage-point_tree)
 
 Can be called from any telegram by typing "\<bot alias\> \<request\>" in any chat
 
@@ -14,25 +15,33 @@ Currently (hopefully) hosted on heroku: [`@tf222bot`](http://t.me/tf222bot)
 
 # Search algorithm
 
-Each query splitted into **tf2 class** (optional) and a **line**  
-**tf2 class** searched by full text inclusion and works more like a filer  
-**Lines** search is implemented with slightly modified [N-grams based search](https://en.wikipedia.org/wiki/N-gram) which make this bot robust againt typos and allows to search with only parts of words  
-Elements with the same score will be in random order  
-There's room for optimization, for example by using [vptree](https://en.wikipedia.org/wiki/Vantage-point_tree) to speed up search
+Each query spitted into **tf2 class** (optional) and a **line**  
+
+**tf2 class** acts as a filter: We either searching among some class or whole dataset
+
+**line** search is implemented with slightly modified [N-grams based search](https://en.wikipedia.org/wiki/N-gram) which make this bot robust against typos and allows to search with only parts of words   
+
+[VPtree](https://en.wikipedia.org/wiki/Vantage-point_tree) makes search in two ways:  
+1. Making complexity `O(log(N))` instead of O(N) for linear search or O(Nlog(N)) for naive implementation.
+2. Since VPtree works in metrics space, it's allows skip heavy n-gram embedding step and save a lot of time
+
+Elements with the same score will be in random order 
+
+Other important thing: my distance function is **not** 100% metric function (not guarantee to satisfy triangle inequality), but it's good enough to make my search work
 
 # File Structure
 
 `main.py`
 
-Responsable for working with telegram
+Responsible for working with telegram
 
 `query_handler.py`
 
-Responsable for query search and creating index
+Responsible for query search and creating index
 
 `scrapper.py`
 
-Responsable for scrapping audio files
+Responsible for scrapping audio files
 
 `data_handler.py`
 
@@ -67,7 +76,7 @@ Then you will need to set up environment variables
 
 TOKEN  = \<telegram token>
 
-ADMINS = \<list of admins' usernames seperated by ";">
+ADMINS = \<list of admins' usernames separated by ";">
 
 ![heroku ENV example](README/ENV_example.jpg)
 
@@ -77,13 +86,13 @@ ADMINS = \<list of admins' usernames seperated by ";">
 
 You can run `/help` to bot and you will get
 
-Most of the command accesable only by admin user
+Most of the command accessible only by admin user
 
 `/admin_scrap_and_cache_data`
 
 This is important operation to get bot working
 
-This command will scrap a site and send all found audios, converte them to mp3 and send to this chat to cache them
+This command will scrap a site and send all found audios, convert them to mp3 and send to this chat to cache them
 
 This is very heavy operation and will take several hours
 
