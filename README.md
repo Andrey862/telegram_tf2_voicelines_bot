@@ -21,8 +21,8 @@ Each query spitted into **tf2 class** (optional) and a **line**
 
 **line** search is implemented with slightly modified [N-grams based search](https://en.wikipedia.org/wiki/N-gram) which make this bot robust against typos and allows to search with only parts of words   
 
-[VPtree](https://en.wikipedia.org/wiki/Vantage-point_tree) makes search in two ways:  
-1. Making complexity `O(log(N))` instead of O(N) for linear search or O(Nlog(N)) for naive implementation.
+[VPtree](https://en.wikipedia.org/wiki/Vantage-point_tree) makes search in two a lot faster ways:  
+1. Making complexity `O(log(N))` instead of O(N) for linear search or O(Nlog(N)) for naive implementation. Where N is the size of our collection ()
 2. Since VPtree works in metrics space, it's allows skip heavy n-gram embedding step and save a lot of time
 
 Elements with the same score will be in random order 
